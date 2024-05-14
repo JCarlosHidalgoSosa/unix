@@ -6,6 +6,8 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include <arpa/inet.h>
+#include <stdlib.h>
+#include <pthread.h> 
 
 #define CONFIG_FILE "unixserver.conf"
 #define BUFFER_SIZE 1024
@@ -45,8 +47,14 @@ void parse_config_file(int *LPORT, char *WEB_ROOT, int *LBUFSIZE) {
 void handle_request(int newsockfd, struct sockaddr_in client_addr, const char *WEB_ROOT, int LBUFSIZE);
 void send_file(int sockfd, const char *filepath, int LBUFSIZE);
 void send_error(int sockfd, int status_code, const char *error_page);
+void *thread_game(void *vargp);
 
 int main() {
+    // to start game thread
+    pthread_t thread_id;
+    pthread_create(&thread_id,NULL,thread_game,NULL);
+    
+    // main thread
     int LPORT, LBUFSIZE;
     char WEB_ROOT[256];
     parse_config_file(&LPORT, WEB_ROOT, &LBUFSIZE);
@@ -122,7 +130,6 @@ void handle_request(int newsockfd, struct sockaddr_in client_addr, const char *W
         strcat(filepath,"/index.html");
     }
 
-
     int filefd = open(filepath, O_RDONLY);
     if (filefd < 0) {
         perror("webserver (open)");
@@ -191,4 +198,9 @@ void send_error(int sockfd, int status_code, const char *error_page) {
     }
 
     fclose(file);
+}
+
+void *thread_game(void *vargp){
+    system("wine ./x64/GMWebServer.exe -v -root \"platformer\" -port 8091");
+    return NULL;
 }

@@ -201,6 +201,6 @@ void send_error(int sockfd, int status_code, const char *error_page) {
 }
 
 void *thread_game(void *vargp){
-    system("wine ./x64/GMWebServer.exe -v -root \"platformer\" -port 8091");
+    system("wine ./x64/GMWebServer.exe -v -root \"platformer\" -port 8090");
     return NULL;
 }

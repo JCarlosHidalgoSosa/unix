@@ -10,7 +10,6 @@
 #define CONFIG_FILE "unixserver.conf"
 #define BUFFER_SIZE 1024
 
-// Default config values
 #define DEFAULT_LPORT 1337
 #define DEFAULT_WEB_ROOT "routes"
 #define DEFAULT_LBUFSIZE 1024
@@ -113,13 +112,16 @@ void handle_request(int newsockfd, struct sockaddr_in client_addr, const char *W
     sscanf(buffer, "%s %s %s", method, uri, version);
     printf("[%s:%u] %s %s %s\n", inet_ntoa(client_addr.sin_addr),
            ntohs(client_addr.sin_port), method, version, uri);
+ 
 
     char filepath[LBUFSIZE];
-    snprintf(filepath, sizeof(filepath), "%s%s", WEB_ROOT, uri);
-    if (strlen(uri) == 1 && uri[0] == '/') {
-        printf("%s",uri);
-        snprintf(filepath, sizeof(filepath), "%s/index.html", WEB_ROOT);
+    snprintf(filepath, sizeof(filepath), "%s", WEB_ROOT);
+
+    if (uri[0] == '/') {
+        strcat(filepath,uri);
+        strcat(filepath,"/index.html");
     }
+
 
     int filefd = open(filepath, O_RDONLY);
     if (filefd < 0) {
